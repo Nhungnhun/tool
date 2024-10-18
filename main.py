@@ -1,114 +1,54 @@
-import tkinter as tk
+import os
 import subprocess
-import time
-import pyautogui
+from PyQt5 import QtWidgets
 import threading
+import pyautogui
+import time
 
 microemulator_path = "E:/Tester/AngelChipEmulator.jar"
-open_jar_count = 0
-credentials_file = "acc.txt"
+jar_file_path = "C:/Users/Hoantm/Downloads/v1prox6.jar"
 
-def check_log(process):
-    while True:
-        line = process.stdout.readline()
-        if not line:
-            break
-        decoded_line = line.strip() 
-        if "openJar" in decoded_line:
-            status_label.config(text="Đã mở file game thành công!", fg="green")
-            # pyautogui.press("down")
-            # pyautogui.press("down")
-            # pyautogui.press("f2")
+class GameHandler:
+    def __init__(self, parent):
+        self.parent = parent
 
-def read_credentials():
-    try:
-        with open(credentials_file, 'r') as file:
-            lines = file.readlines()
-            if len(lines) >= 2:
-                username = lines[0].strip()
-                password = lines[1].strip()
-                return username, password
-            else:
-                return "", ""
-    except FileNotFoundError:
-        return "", ""
+    def open_game(self, row):
+        thread = threading.Thread(target=self.run_open_game, args=(row,))
+        thread.start()
 
-def save_credentials(username, password):
-    with open(credentials_file, 'w') as file:
-        file.write(f"{username}\n{password}")
-            
+    def run_open_game(self, row_data):
+        user_pass = row_data[7]
+        user, password = user_pass.split('/')
+        # ind, status = row_data[5].split('.')
+        # print(ind)
 
-def open_game():
-    jar_file_path = "C:/Users/Hoantm/Downloads/V6 X6.jar"
+        print("User:", user)
+        print("Password:", password)
 
-    if jar_file_path:
-        command = ["java", "-jar", microemulator_path, jar_file_path]
-        try:
-            #process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-            subprocess.Popen(command)
-            time.sleep(2)
-            pyautogui.press("enter")
-            # threading.Thread(target=check_log, args=(process,), daemon=True).start()
-            status_label.config(text="Đang mở game...", fg="black")
-
-            status_label.config(text="Đã mở game thành công!", fg="green")
-
-            # Tiến hành các thao tác tiếp theo
-            pyautogui.press("down")
-            pyautogui.press("down")
-            pyautogui.press("down")
-            pyautogui.press("down")
-            pyautogui.press("enter")
-            time.sleep(15)
-            pyautogui.press("down")
-            pyautogui.press("down")
-            pyautogui.press("down")
-            pyautogui.press("enter")
-            time.sleep(10)
-            pyautogui.press("right")
-            pyautogui.press("enter")
-            status_label.config(text="Đăng nhập thành công!", fg="green")
-
-            # Nhập thông tin tên người dùng và mật khẩu
-            username = username_entry.get()
-            password = password_entry.get()
-            save_credentials(username, password)
-            pyautogui.typewrite(username)
-            pyautogui.press("down")
-            pyautogui.typewrite(password)
-            pyautogui.press("enter")
-            pyautogui.press("down")
-            pyautogui.press("enter")
-            time.sleep(10)
-            pyautogui.press("right")
-            pyautogui.press("enter")
-        except Exception as e:
-            status_label.config(text=f"Có lỗi xảy ra: {e}", fg="red")
-
-root = tk.Tk()
-root.title("Game Launcher")
-
-root.geometry("400x300")
-
-# Nhập liệu tên người dùng
-tk.Label(root, text="Tên người dùng:").pack(pady=5)
-username_entry = tk.Entry(root)
-username_entry.pack(pady=5)
-
-# Nhập liệu mật khẩu
-tk.Label(root, text="Mật khẩu:").pack(pady=5)
-password_entry = tk.Entry(root, show="*")  # show="*" ẩn mật khẩu
-password_entry.pack(pady=5)
-
-# Đọc tên người dùng và mật khẩu từ file ghi chú khi chương trình khởi động
-username, password = read_credentials()
-username_entry.insert(0, username)
-password_entry.insert(0, password)
-
-open_button = tk.Button(root, text="Mở Game", command=open_game)
-open_button.pack(pady=20)
-
-status_label = tk.Label(root, text="", fg="black")
-status_label.pack()
-
-root.mainloop()
+        if os.path.exists(microemulator_path):
+            try:
+                command = ["java", "-jar", microemulator_path, jar_file_path]
+                subprocess.Popen(command)
+                time.sleep(5)
+                pyautogui.press("enter")
+                time.sleep(5)
+                pyautogui.press("enter")
+                time.sleep(10)
+                pyautogui.press("down")
+                pyautogui.press("down")
+                pyautogui.press("down")
+                pyautogui.press("enter")
+                time.sleep(1)
+                pyautogui.typewrite(user)
+                pyautogui.press("down")
+                pyautogui.typewrite(password)
+                pyautogui.press("f2")
+                pyautogui.press("down")
+                pyautogui.press("enter")
+                time.sleep(10)
+                pyautogui.press("right")
+                pyautogui.click()
+            except Exception as e:
+                QtWidgets.QMessageBox.critical(self.parent, "Lỗi", f"Không thể mở emulator: {e}")
+        else:
+            QtWidgets.QMessageBox.warning(self.parent, "Cảnh báo", "File .jar không tồn tại.")

@@ -1,0 +1,160 @@
+Map0: Nhà thi đấu Haruna
+Map1: Trường Hirosaki
+Map2: Khu luyện tập
+Map3: Đồng Hachi
+Map4: Rừng đào Sakura
+Map5: Rừng trúc Utra
+Map6: Thác Kitajima
+Map7: Rừng Mishima
+Map8: Sông Watamaro
+Map9: Nghĩa địa Izuko
+Map10: Làng Kojin
+Map11: Miếu Kamo
+Map12: Miếu Oboko
+Map13: Rừng gỗ Kouji
+Map14: Rừng Aokigahara
+Map15: Vách núi Ito
+Map16: Thung lũng Taira
+Map17: Làng Sanzu
+Map18: Sân đền Orochi
+Map19: Ngôi đền Orochi
+Map20: Chân thác Kitajima
+Map21: Đồi Fumimen
+Map22: Làng Tone
+Map23: Vách Ichidai
+Map24: Đỉnh Ichidai
+Map25: Đồi Kokoro
+Map26: Cánh đồng Fuki
+Map27: Trường Haruna
+Map28: Ký túc xá Haruna
+Map29: Hang Aka
+Map30: Suối Akagi
+Map31: Bờ biển Oura
+Map32: Làng chài
+Map33: Rừng Moshio
+Map34: Đão Hebi
+Map35: Hang Meiro
+Map36: Đồng Kisei
+Map37: Núi Hashigoto
+Map38: Làng Chakumi
+Map39: Sông băng Yamato
+Map40: Cánh đồng Hiya
+Map41: Khu đá đỏ Akai
+Map42: Khu đá đỏ Aiko
+Map43: Làng Echigo
+Map44: Đỉnh Okama
+Map45: Hang núi Kurai
+Map46: Hồ Stuki
+Map47: Hẻm núi Takana
+Map48: Làng Oshin
+Map49: Đền Amaterasu
+Map50: Rừng Kanashii
+Map51: Rừng Toge
+Map52: Rừng Kappa
+Map53: Động Tamatamo
+Map54: Đền Harumoto
+Map55: Phong ấn Ounio
+Map56: Nhà thi đấu Ookaza
+Map57: Sân sau Miếu Oboko
+Map58: Sân sau đền Orochi
+Map59: Mũi Hone
+Map60: Cửa hang Aka
+Map61: Cửa biển Kawaguchi
+Map62: Hang Chi
+Map63: Hang Ha
+Map64: Hang Kugyou
+Map65: Mũi Nuranura
+Map66: Khe núi Chorochoro
+Map67: Núi Ontake
+Map68: Núi Anzen
+Map69: Vách Ainodake
+Map70: Thung lũng chết
+Map71: Rừng già
+Map72: Trường Ookaza
+Map73: Nhà thi đấu Hirosaki
+Map74: Hang Inoshishi
+Map75: Đấu trường cấp 10
+Map76: Đấu trường cấp 20
+Map77: Đấu trường cấp 30
+Map78: Địa đạo Chikatoya
+Map79: Đấu trường cấp 40
+Map80: Cửa Chờ
+Map81: Cửa Siêu Tốc
+Map82: Cửa Né Tránh
+Map83: Cửa Phản Đòn
+Map84: Cửa Hỏa
+Map85: Cửa Phong
+Map86: Cửa Băng
+Map87: Cửa Sa Mạc
+Map88: Cửa Đồi Núi
+Map89: Cửa Đầm Lầy
+Map90: Cửa Bùa Chú
+Map91: Động bàn tơ
+Map92: Hang dơi
+Map93: Hang thủ lĩnh
+Map94: Hang tổ ong
+Map95: Động bọ ngựa
+Map96: Hang kỳ đà
+Map97: Thiên Vương Động
+Map98: Căn cứ địa
+Map99: Bạch đài
+Map100: Hành lang giữa
+Map101: Hành lang trên
+Map102: Hành lang dưới
+Map103: Hắc đài
+Map104: Cắn cứ địa
+Map105: Tam hợp sơn động
+Map106: Long xà động
+Map107: Hoàng xà động
+Map108: Xích trùng động
+Map109: Ngân lang động
+Map110: Khu báo danh
+Map111: Lôi đài
+Map112: Thất thú ải
+Map113: Khu vực chờ
+Map114: Thạch không vực
+Map115: Sinh tử vực
+Map116: Luân hồi kiếp
+Map117: Khu báo danh
+Map118: Báo danh gia tộc
+Map119: Báo danh gia tộc
+Map120: Sảnh 1
+Map121: Hành lang 1
+Map122: Hành lang 2
+Map123: Hành lang 3
+Map124: Sảnh 2
+Map125: Độc phong sơn
+Map126: Địa trùng sơn
+Map127: Mộc hỏa vực
+Map128: Sơn vương trại
+Map129: Lôi đài
+Map130: Kẹo chiến
+Map131: Kẹo trắng
+Map132: Kẹo đen
+Map133: Phòng chờ
+Map134: Núi Doragon
+Map135: Rừng Majo
+Map136: Vực Yunikoon
+Map137: Động Kingu
+Map138: Làng Fearri
+Map139: Quỷ Sơn
+Map140: Sơn Hải Vực
+Map141: Đoạn Sơn
+Map142: Đão Quỷ
+Map143: Sinh Tử Kiều
+Map144: Nhân Duyên Lộ
+Map145: Hoang Trấn
+Map146: Mài Tâm Lộ
+Map147: Bát Thụ Hoang Lâm
+Map148: Cửu Mộc Hoàng Kiều
+Map149: Lôi đài
+Map150: Chiến trường Hirosaki
+Map151: Chiến trường Haruna
+Map152: Chiến trường Ookaza
+Map153: Khu vực giao lưu
+Map154: Phòng chờ Hirosaki
+Map155: Phòng chờ Haruna
+Map156: Phòng chờ Ookaza
+Map157: Tam Nhân Quan 1
+Map158: Tam Nhân Quan 2
+Map159: Tam Nhân Quan 3

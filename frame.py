@@ -3,13 +3,16 @@ import threading
 import time
 import psutil
 from PyQt5 import QtWidgets, QtGui
-from PyQt5.QtCore import Qt  # Thêm dòng này
-from data_manager import read_data, write_data
+from PyQt5.QtCore import Qt
+from data_manager import read_data, write_data, read_maps_from_file
 import subprocess
 import sys
 import os
+from main import GameHandler
 
 data_file = "data.txt"
+map_file = "map.txt"
+maps = read_maps_from_file(map_file)
 sample_data = read_data(data_file)
 
 class MyApp(QtWidgets.QWidget):
@@ -28,43 +31,47 @@ class MyApp(QtWidgets.QWidget):
         self.create_settings_area(layout)
         self.setLayout(layout)
         self.setWindowTitle('Game Tool')
-        self.setGeometry(100, 100, 960, 600)
+        self.setGeometry(100, 100, 1175, 600)
         self.setWindowIcon(QtGui.QIcon('C:/Users/Vu Quang Tung/Downloads/74c532531a8da3d3fa9c.jpg'))
         self.show()
 
     def create_top_area(self, layout):
         top_layout = QtWidgets.QHBoxLayout()
         
-        # Nút "Mở Game"
         btn_open_game = QtWidgets.QPushButton("Mở Game")
+        btn_open_game.setFixedSize(80, 30)  # Set size to 80x60 pixels
         btn_open_game.clicked.connect(self.open_game)
         top_layout.addWidget(btn_open_game)
         
-        # Nút "Thêm"
         btn_add = QtWidgets.QPushButton("Thêm")
+        btn_add.setFixedSize(80, 30)  # Set size to 80x60 pixels
         btn_add.clicked.connect(self.add_data)
         top_layout.addWidget(btn_add)
         
-        # Nút "Xóa"
         btn_remove = QtWidgets.QPushButton("Xóa")
+        btn_remove.setFixedSize(80, 30)  # Set size to 80x60 pixels
         btn_remove.clicked.connect(self.remove_data)
         top_layout.addWidget(btn_remove)
         
-        # Nút "Cập nhật"
         btn_update = QtWidgets.QPushButton("Cập nhật")
+        btn_update.setFixedSize(80, 30)  # Set size to 80x60 pixels
         btn_update.clicked.connect(self.update_data)
         top_layout.addWidget(btn_update)
         
         layout.addLayout(top_layout)
 
 
+
     def create_system_info_area(self, layout):
-        system_info_layout = QtWidgets.QHBoxLayout()
+        frame = QtWidgets.QFrame()
+        frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        system_info_layout = QtWidgets.QVBoxLayout()
         self.cpu_label = QtWidgets.QLabel("CPU: ")
         self.ram_label = QtWidgets.QLabel("RAM: ")
         system_info_layout.addWidget(self.cpu_label)
         system_info_layout.addWidget(self.ram_label)
-        layout.addLayout(system_info_layout)
+        frame.setLayout(system_info_layout)
+        layout.addWidget(frame)
         threading.Thread(target=self.update_system_info, daemon=True).start()
 
     def update_system_info(self):
@@ -138,7 +145,7 @@ class MyApp(QtWidgets.QWidget):
         settings_label = QtWidgets.QLabel("Cài đặt đánh quái")
         settings_layout.addWidget(settings_label)
         self.server_combobox = QtWidgets.QComboBox()
-        self.server_combobox.addItems([f'Server {i}' for i in range(1, 11)])
+        self.server_combobox.addItems(maps)
         settings_layout.addWidget(self.server_combobox)
         self.chk_support_skill = QtWidgets.QCheckBox("Dùng chiêu hỗ trợ")
         settings_layout.addWidget(self.chk_support_skill)
@@ -149,26 +156,30 @@ class MyApp(QtWidgets.QWidget):
 
     def show_row_data(self, row):
         dialog = QtWidgets.QDialog(self)
-        dialog.setWindowTitle("Thông Tin Hàng")
+        dialog.setWindowTitle("Thông tin nhân vật")
         dialog.setGeometry(100, 100, 400, 300)
         layout = QtWidgets.QVBoxLayout(dialog)
         
         row_data = sample_data[row]
         for idx, item in enumerate(row_data):
-            if idx == 7:
-                if "/" in item:
-                    user, password = item.split("/", 1)
-                    layout.addWidget(QtWidgets.QLabel(f"Tài khoản : {user}"))
-                    layout.addWidget(QtWidgets.QLabel(f"Mật khẩu : {password}"))
+            if idx > 2:
+                if idx == 5:
+                    index, status = item.split(".")
+                    layout.addWidget(QtWidgets.QLabel(f"Trạng thái : {status}"))  
+                elif idx == 7:
+                    if "/" in item:
+                        user, password = item.split("/", 1)
+                        layout.addWidget(QtWidgets.QLabel(f"Tài khoản : {user}"))
+                        layout.addWidget(QtWidgets.QLabel(f"Mật khẩu : {password}"))
                 else:
                     layout.addWidget(QtWidgets.QLabel(f"{self.table.horizontalHeaderItem(idx).text()}: {item}"))
-            else:
-                layout.addWidget(QtWidgets.QLabel(f"{self.table.horizontalHeaderItem(idx).text()}: {item}"))
         
         btn_close = QtWidgets.QPushButton("Đóng")
         btn_close.clicked.connect(dialog.accept)
         layout.addWidget(btn_close)
         dialog.exec_()
+
+
 
     def update_data(self):
         reply = QtWidgets.QMessageBox.question(
@@ -186,16 +197,20 @@ class MyApp(QtWidgets.QWidget):
             subprocess.check_call(["git", "pull"])
             QtWidgets.QMessageBox.information(self, "Cập nhật", "Cập nhật thành công! Đang khởi động lại ứng dụng...")
             QtWidgets.QApplication.quit()
-            os.execv(sys.executable, ['python'] + sys.argv)
+            os.execv(sys.executable, ['python'] + sys.argv)          
         except subprocess.CalledProcessError as e:
             QtWidgets.QMessageBox.critical(self, "Lỗi", f"Có lỗi xảy ra khi cập nhật: {e}")
 
-
-
-
     def open_game(self):
-        selected_items = [self.table.item(row, 0).text() for row in range(self.table.rowCount()) if self.table.item(row, 0) is not None]
-        print("Selected items:", selected_items)
+        if self.selected_row is not None:
+            row_data = sample_data[self.selected_row]  # Lấy dữ liệu của hàng đã chọn
+            print(row_data)
+            # Nếu bạn muốn mở game, gọi hàm mở game tại đây
+            # self.game_handler.open_game(row_data)  # Gọi hàm mở game với dữ liệu hàng đã chọn
+        else:
+            QtWidgets.QMessageBox.warning(self, "Cảnh báo", "Vui lòng chọn một hàng trước khi mở game.")
+        # self.game_handler = GameHandler(self)
+        # self.game_handler.open_game(row_data)
 
     def add_data(self):
         if len(sample_data) >= 20:
@@ -217,7 +232,6 @@ class MyApp(QtWidgets.QWidget):
             "Brokken",
             ""
         )
-        
         sample_data.append(new_data)
         self.add_data_to_table()
         write_data(data_file, sample_data)
@@ -228,9 +242,9 @@ class MyApp(QtWidgets.QWidget):
             previous_item = self.table.item(self.selected_row, 0)
             if previous_item:
                 previous_item.setBackground(QtGui.QColor("white"))
-
         self.selected_row = row
         self.table.item(row, 0).setBackground(QtGui.QColor("lightgreen"))
+
 
     def on_cell_double_clicked(self, row, column):
         if column == 7:
@@ -253,7 +267,6 @@ class MyApp(QtWidgets.QWidget):
                 layout.addWidget(edit_password)
                 btn_ok = QtWidgets.QPushButton("OK")
                 layout.addWidget(btn_ok)
-
                 def update_value():
                     new_username = edit_username.text()
                     new_password = edit_password.text()
@@ -268,9 +281,7 @@ class MyApp(QtWidgets.QWidget):
                 btn_ok.clicked.connect(update_value)
                 dialog.exec_()
 
-
-
-    def remove_data(self):
+    def remove_data(self, row):
         if self.selected_row is not None:
             del sample_data[self.selected_row]
             self.add_data_to_table()
@@ -280,4 +291,5 @@ class MyApp(QtWidgets.QWidget):
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     my_app = MyApp()
+    my_app.show()
     sys.exit(app.exec_())
