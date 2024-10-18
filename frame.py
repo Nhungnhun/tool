@@ -171,18 +171,15 @@ class MyApp(QtWidgets.QWidget):
         dialog.exec_()
 
     def update_data(self):
-        # Hiển thị hộp thoại xác nhận
         reply = QtWidgets.QMessageBox.question(
             self,
             "Xác nhận cập nhật",
             "Bạn có đồng ý cập nhật không?",
             QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
-            QtWidgets.QMessageBox.No  # Mặc định chọn "Không"
+            QtWidgets.QMessageBox.No
         )
-
-        # Kiểm tra phản hồi của người dùng
         if reply == QtWidgets.QMessageBox.Yes:
-            self.perform_update()  # Gọi hàm để thực hiện cập nhật
+            self.perform_update()
         
     def perform_update(self):
         try:
