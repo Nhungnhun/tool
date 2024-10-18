@@ -5,17 +5,17 @@ import psutil
 from PyQt5 import QtWidgets, QtGui
 from PyQt5.QtCore import Qt  # Thêm dòng này
 from data_manager import read_data, write_data
+import subprocess
+import sys
+import os
 
-# Tên file lưu trữ dữ liệu
 data_file = "data.txt"
-
-# Danh sách dữ liệu mẫu
 sample_data = read_data(data_file)
 
 class MyApp(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
-        self.selected_row = None  # Biến để lưu chỉ số hàng đã chọn
+        self.selected_row = None
         self.init_ui()
 
     def init_ui(self):
@@ -23,29 +23,40 @@ class MyApp(QtWidgets.QWidget):
         self.create_top_area(layout)
         self.create_system_info_area(layout)
         self.create_data_display_area(layout)
+        self.table.cellDoubleClicked.connect(self.on_cell_double_clicked)
+        self.table.itemChanged.connect(self.on_checkbox_changed)
         self.create_settings_area(layout)
         self.setLayout(layout)
         self.setWindowTitle('Game Tool')
-        self.setGeometry(100, 100, 1050, 600)
+        self.setGeometry(100, 100, 960, 600)
+        self.setWindowIcon(QtGui.QIcon('C:/Users/Vu Quang Tung/Downloads/74c532531a8da3d3fa9c.jpg'))
         self.show()
 
     def create_top_area(self, layout):
         top_layout = QtWidgets.QHBoxLayout()
+        
+        # Nút "Mở Game"
         btn_open_game = QtWidgets.QPushButton("Mở Game")
         btn_open_game.clicked.connect(self.open_game)
         top_layout.addWidget(btn_open_game)
-
+        
+        # Nút "Thêm"
         btn_add = QtWidgets.QPushButton("Thêm")
         btn_add.clicked.connect(self.add_data)
         top_layout.addWidget(btn_add)
-
-
-
+        
+        # Nút "Xóa"
         btn_remove = QtWidgets.QPushButton("Xóa")
         btn_remove.clicked.connect(self.remove_data)
         top_layout.addWidget(btn_remove)
-
+        
+        # Nút "Cập nhật"
+        btn_update = QtWidgets.QPushButton("Cập nhật")
+        btn_update.clicked.connect(self.update_data)
+        top_layout.addWidget(btn_update)
+        
         layout.addLayout(top_layout)
+
 
     def create_system_info_area(self, layout):
         system_info_layout = QtWidgets.QHBoxLayout()
@@ -53,82 +64,167 @@ class MyApp(QtWidgets.QWidget):
         self.ram_label = QtWidgets.QLabel("RAM: ")
         system_info_layout.addWidget(self.cpu_label)
         system_info_layout.addWidget(self.ram_label)
-
         layout.addLayout(system_info_layout)
-
         threading.Thread(target=self.update_system_info, daemon=True).start()
 
     def update_system_info(self):
         while True:
             cpu_percent = psutil.cpu_percent()
             ram_percent = psutil.virtual_memory().percent
-
             self.cpu_label.setText(f"CPU: {cpu_percent}%")
             self.ram_label.setText(f"RAM: {ram_percent}%")
-
             time.sleep(1)
 
     def create_data_display_area(self, layout):
-        # Tạo QTableWidget
         self.table = QtWidgets.QTableWidget(self)
-        self.table.setColumnCount(8)  # Số lượng cột
-        self.table.setHorizontalHeaderLabels(["x10", "Chọn", "Buff", "Nhân Vật", "Yên 1h", "Trạng Thái", "Server", "Tài Khoản"])
-        self.table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)  # Chọn hàng
-        self.table.setAlternatingRowColors(True)  # Tô màu hàng chẵn và lẻ khác nhau
-
-        # Kết nối sự kiện chọn hàng
+        self.table.setColumnCount(9)
+        self.table.setHorizontalHeaderLabels(["x10", "Chọn", "Buff", "Nhân Vật", "Yên 1h", "Trạng Thái", "Server", "Tài Khoản", "Show"])
+        self.table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.table.setAlternatingRowColors(True)
         self.table.cellClicked.connect(self.on_row_select)
-
-        # Thêm dữ liệu vào bảng
         self.add_data_to_table()
 
         layout.addWidget(self.table)
 
     def add_data_to_table(self):
-        self.table.setRowCount(len(sample_data))  # Thiết lập số hàng
+        self.table.setRowCount(len(sample_data))
         for row_index, data in enumerate(sample_data):
             for col_index, item in enumerate(data):
-                if col_index < 3:  # Các cột x10, Chọn, Buff
+                if col_index < 3:
                     checkbox_item = QtWidgets.QTableWidgetItem()
                     checkbox_item.setCheckState(Qt.Checked if item else Qt.Unchecked)
-                    checkbox_item.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)  # Cho phép người dùng thay đổi checkbox
-                    checkbox_item.setTextAlignment(Qt.AlignCenter)  # Căn giữa checkbox
+                    checkbox_item.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
+                    checkbox_item.setTextAlignment(Qt.AlignCenter)
                     self.table.setItem(row_index, col_index, checkbox_item)
-                else:
-                    text_item = QtWidgets.QTableWidgetItem(str(item))
-                    text_item.setTextAlignment(Qt.AlignCenter)  # Căn giữa nội dung text
+                elif col_index == 6:
+                    combo_box = QtWidgets.QComboBox(self)
+                    combo_box.addItems(["Bokken", "Shuriken", "Tessen", "Kunai", "Katana", "Tone", "Sanzu", "Sensha", "Fukiya", "Tekkan"])
+                    combo_box.setCurrentText(str(item))
+                    combo_box.currentIndexChanged.connect(lambda index, row=row_index: self.update_combo_value(row, index))
+                    self.table.setCellWidget(row_index, col_index, combo_box)
+                elif col_index == 7:
+                    account_value = str(item).split("/")[0] if item else ""
+                    text_item = QtWidgets.QTableWidgetItem(account_value)
+                    text_item.setTextAlignment(Qt.AlignCenter)
                     self.table.setItem(row_index, col_index, text_item)
+                else:
+                    text_item = QtWidgets.QTableWidgetItem(str(item) if item is not None else "")
+                    text_item.setTextAlignment(Qt.AlignCenter)
+                    self.table.setItem(row_index, col_index, text_item)
+            show_button = QtWidgets.QPushButton("Hiển thị")
+            show_button.clicked.connect(lambda checked, row=row_index: self.show_row_data(row))
+            self.table.setCellWidget(row_index, 8, show_button)
 
+    def update_combo_value(self, row, index):
+        combo_box = self.table.cellWidget(row, 6)
+        new_value = combo_box.currentText()
+        row_data = list(sample_data[row])
+        row_data[6] = new_value
+        sample_data[row] = tuple(row_data)
+        write_data(data_file, sample_data)
 
+    def on_checkbox_changed(self, item):
+        row = item.row()
+        column = item.column()
+        if column < 3:
+            is_checked = item.checkState() == Qt.Checked
+            row_data = list(sample_data[row])
+            row_data[column] = is_checked
+            sample_data[row] = tuple(row_data)
+            write_data(data_file, sample_data)
 
     def create_settings_area(self, layout):
         settings_layout = QtWidgets.QHBoxLayout()
         settings_label = QtWidgets.QLabel("Cài đặt đánh quái")
         settings_layout.addWidget(settings_label)
-
         self.server_combobox = QtWidgets.QComboBox()
         self.server_combobox.addItems([f'Server {i}' for i in range(1, 11)])
         settings_layout.addWidget(self.server_combobox)
-
         self.chk_support_skill = QtWidgets.QCheckBox("Dùng chiêu hỗ trợ")
         settings_layout.addWidget(self.chk_support_skill)
-
-        btn_start_auto = QtWidgets.QPushButton("Bắt Auto")
+        btn_start_auto = QtWidgets.QPushButton("Bật Auto")
         btn_start_auto.clicked.connect(lambda: print("Auto started"))
         settings_layout.addWidget(btn_start_auto)
-
         layout.addLayout(settings_layout)
+
+    def show_row_data(self, row):
+        dialog = QtWidgets.QDialog(self)
+        dialog.setWindowTitle("Thông Tin Hàng")
+        dialog.setGeometry(100, 100, 400, 300)
+        layout = QtWidgets.QVBoxLayout(dialog)
+        
+        row_data = sample_data[row]
+        for idx, item in enumerate(row_data):
+            if idx == 7:
+                if "/" in item:
+                    user, password = item.split("/", 1)
+                    layout.addWidget(QtWidgets.QLabel(f"Tài khoản : {user}"))
+                    layout.addWidget(QtWidgets.QLabel(f"Mật khẩu : {password}"))
+                else:
+                    layout.addWidget(QtWidgets.QLabel(f"{self.table.horizontalHeaderItem(idx).text()}: {item}"))
+            else:
+                layout.addWidget(QtWidgets.QLabel(f"{self.table.horizontalHeaderItem(idx).text()}: {item}"))
+        
+        btn_close = QtWidgets.QPushButton("Đóng")
+        btn_close.clicked.connect(dialog.accept)
+        layout.addWidget(btn_close)
+        dialog.exec_()
+
+    def update_data(self):
+        # Hiển thị hộp thoại xác nhận
+        reply = QtWidgets.QMessageBox.question(
+            self,
+            "Xác nhận cập nhật",
+            "Bạn có đồng ý cập nhật không?",
+            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+            QtWidgets.QMessageBox.No  # Mặc định chọn "Không"
+        )
+
+        # Kiểm tra phản hồi của người dùng
+        if reply == QtWidgets.QMessageBox.Yes:
+            self.perform_update()  # Gọi hàm để thực hiện cập nhật
+        
+    def perform_update(self):
+        try:
+            subprocess.check_call(["git", "pull"])
+            QtWidgets.QMessageBox.information(self, "Cập nhật", "Cập nhật thành công! Đang khởi động lại ứng dụng...")
+            QtWidgets.QApplication.quit()
+            os.execv(sys.executable, ['python'] + sys.argv)
+        except subprocess.CalledProcessError as e:
+            QtWidgets.QMessageBox.critical(self, "Lỗi", f"Có lỗi xảy ra khi cập nhật: {e}")
+
+
+
 
     def open_game(self):
         selected_items = [self.table.item(row, 0).text() for row in range(self.table.rowCount()) if self.table.item(row, 0) is not None]
         print("Selected items:", selected_items)
 
     def add_data(self):
+        if len(sample_data) >= 20:
+            QtWidgets.QMessageBox.warning(
+                self, 
+                "Cảnh báo", 
+                "Bạn chỉ thêm được 20 tài khoản."
+                "Cần báo thêm admin để được thêm tài khoản vào tool"
+            )
+            return
         new_index = len(sample_data)
-        new_data = (False, False, False, f'Nhân Vật {new_index + 1}', str(new_index * 10), f"{new_index}. OFFLINE", f'Server {new_index + 1}', f'Tài khoản {new_index + 1}')
+        new_data = (
+            False,
+            True,
+            False,
+            " ",
+            " ",
+            f"{new_index}. OFFLINE",
+            "Brokken",
+            ""
+        )
+        
         sample_data.append(new_data)
         self.add_data_to_table()
         write_data(data_file, sample_data)
+
 
     def on_row_select(self, row, column):
         if self.selected_row is not None:
@@ -140,42 +236,42 @@ class MyApp(QtWidgets.QWidget):
         self.table.item(row, 0).setBackground(QtGui.QColor("lightgreen"))
 
     def on_cell_double_clicked(self, row, column):
-        # Chỉ cho phép sửa ô Tài Khoản (cột 7)
-        if column == 7:  
-            item = self.table.item(row, column)
-            if item is not None:
-                current_value = item.text()
-                
-                # Tạo một hộp thoại QDialog để sửa giá trị
+        if column == 7:
+            item_username = self.table.item(row, column)
+            if item_username is not None:
+                current_username = item_username.text()
+                print(current_username)
                 dialog = QtWidgets.QDialog(self)
                 dialog.setWindowTitle("Sửa Dữ Liệu")
-                dialog.setGeometry(100, 100, 400, 200)  # Kích thước hộp thoại
-
+                dialog.setGeometry(100, 100, 400, 300)
                 layout = QtWidgets.QVBoxLayout(dialog)
-
-                label = QtWidgets.QLabel("Nhập giá trị mới:")
-                layout.addWidget(label)
-
-                edit_line = QtWidgets.QLineEdit(current_value)
-                layout.addWidget(edit_line)
-
-                # Nút OK
+                label_username = QtWidgets.QLabel("User:")
+                layout.addWidget(label_username)
+                edit_username = QtWidgets.QLineEdit(current_username)
+                layout.addWidget(edit_username)
+                label_password = QtWidgets.QLabel("Password:")
+                layout.addWidget(label_password)
+                edit_password = QtWidgets.QLineEdit()
+                edit_password.setEchoMode(QtWidgets.QLineEdit.Password)
+                layout.addWidget(edit_password)
                 btn_ok = QtWidgets.QPushButton("OK")
                 layout.addWidget(btn_ok)
 
-                # Xử lý sự kiện khi nhấn nút OK
                 def update_value():
-                    new_value = edit_line.text()
-                    item.setText(new_value)  # Cập nhật giá trị trong bảng
-                    # Cập nhật dữ liệu trong sample_data
-                    sample_data[row] = list(sample_data[row])  # Chuyển đổi tuple thành list để có thể sửa đổi
-                    sample_data[row][column] = new_value  # Cập nhật giá trị mới
-                    write_data(data_file, sample_data)  # Ghi lại vào tệp
-                    dialog.accept()  # Đóng hộp thoại
+                    new_username = edit_username.text()
+                    new_password = edit_password.text()
+                    item_username.setText(new_username)
+                    row_data = list(sample_data[row])
+                    row_data[column] = f"{new_username}/{new_password}"
+                    sample_data[row] = tuple(row_data)
+
+                    write_data(data_file, sample_data)
+                    dialog.accept()
 
                 btn_ok.clicked.connect(update_value)
+                dialog.exec_()
 
-                dialog.exec_()  # Hiển thị hộp thoại
+
 
     def remove_data(self):
         if self.selected_row is not None:
