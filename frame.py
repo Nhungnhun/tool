@@ -290,6 +290,14 @@ class MyApp(QtWidgets.QWidget):
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
-    my_app = MyApp()
-    my_app.show()
-    sys.exit(app.exec_())
+    
+    # Loop until the correct key is entered
+    while True:
+        key, ok = QtWidgets.QInputDialog.getText(None, "Authentication", "Please enter the admin key:", QtWidgets.QLineEdit.Password)
+        
+        if ok and key == "admin":
+            my_app = MyApp()
+            my_app.show()
+            sys.exit(app.exec_())
+        else:
+            QtWidgets.QMessageBox.critical(None, "Error", "Invalid key! Please try again.")
