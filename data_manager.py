@@ -1,7 +1,6 @@
 import os
 from tkinter import messagebox
 
-# Hàm đọc dữ liệu từ file
 def read_data(data_file):
     if not os.path.exists(data_file):
         return []
@@ -48,49 +47,6 @@ def remove_data(sample_data, tree, data_file):
         sample_data.pop(index)
         tree.delete(selected_item)
         write_data(data_file, sample_data)
-
-def show_selected_data(event, tree):
-    # Kiểm tra xem tree có phải là None không
-    if tree is None:
-        print("Tree is None, cannot select item.")
-        return
-    
-    # Lấy item đã chọn
-    selected_item = tree.selection()
-    
-    if selected_item:
-        cur_item = tree.focus()
-        
-        if event:  # Kiểm tra nếu event không phải là None
-            col_id = tree.identify_column(event.x)  # Nhận cột của sự kiện
-            if col_id == '#9':  # Kiểm tra nếu cột là cột mà bạn muốn xử lý
-                item_values = tree.item(cur_item)['values']  # Lấy giá trị item
-                # Hiển thị thông tin
-                message = (f"Thông tin hàng đã chọn:\n"
-                            f"x10: {item_values[0]}\n"
-                            f"Chọn: {item_values[1]}\n"
-                            f"Buff: {item_values[2]}\n"
-                            f"Nhân Vật: {item_values[3]}\n"
-                            f"Yên 1h: {item_values[4]}\n"
-                            f"Trạng Thái: {item_values[5]}\n"
-                            f"Server: {item_values[6]}\n"
-                            f"Tài Khoản: {item_values[7]}")
-                QtWidgets.QMessageBox.information(tree, "Thông tin hàng", message)
-        else:  # Xử lý trường hợp không có sự kiện
-            item_values = tree.item(selected_item)['values']  # Lấy giá trị item
-            # Hiển thị thông tin
-            message = (f"Thông tin hàng đã chọn:\n"
-                        f"x10: {item_values[0]}\n"
-                        f"Chọn: {item_values[1]}\n"
-                        f"Buff: {item_values[2]}\n"
-                        f"Nhân Vật: {item_values[3]}\n"
-                        f"Yên 1h: {item_values[4]}\n"
-                        f"Trạng Thái: {item_values[5]}\n"
-                        f"Server: {item_values[6]}\n"
-                        f"Tài Khoản: {item_values[7]}")
-            QtWidgets.QMessageBox.information(tree, "Thông tin hàng", message)
-    else:
-        print("No item is selected.")
 
 
 def write_data(data_file, sample_data):

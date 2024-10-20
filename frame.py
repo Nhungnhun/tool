@@ -9,6 +9,7 @@ import subprocess
 import sys
 import os
 from main import GameHandler
+from database import check_key_from_db
 
 data_file = "data.txt"
 map_file = "map.txt"
@@ -288,14 +289,38 @@ class MyApp(QtWidgets.QWidget):
             self.selected_row = None
             write_data(data_file, sample_data)
 
+def get_admin_key():
+    dialog = QtWidgets.QDialog()
+    dialog.setWindowTitle("Quản lý")
+    dialog.setFixedSize(300, 150)  # Đặt kích thước cho hộp thoại
+
+    layout = QtWidgets.QVBoxLayout(dialog)
+    label = QtWidgets.QLabel("Please enter the admin key:")
+    layout.addWidget(label)
+
+    input_field = QtWidgets.QLineEdit()
+    input_field.setEchoMode(QtWidgets.QLineEdit.Password)  # Hiển thị ký tự ẩn
+    layout.addWidget(input_field)
+
+    button_box = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
+    layout.addWidget(button_box)
+
+    button_box.accepted.connect(dialog.accept)
+    button_box.rejected.connect(dialog.reject)
+
+    if dialog.exec_() == QtWidgets.QDialog.Accepted:
+        return input_field.text(), True
+    else:
+        return None, False
+
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     
     # Loop until the correct key is entered
     while True:
-        key, ok = QtWidgets.QInputDialog.getText(None, "Authentication", "Please enter the admin key:", QtWidgets.QLineEdit.Password)
+        key, ok = get_admin_key()
         
-        if ok and key == "admin":
+        if ok and key == check_key_from_db(key):
             my_app = MyApp()
             my_app.show()
             sys.exit(app.exec_())
